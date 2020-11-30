@@ -103,11 +103,14 @@ class matrix(object):
         result += "\\end{bmatrix}"
         return result
 
-    def transpose(self):
+    def transposed(self):
         new_arr = []
         for col in range(len(self.arr[0])):
             new_arr.append([self.arr[i][col] for i, _ in enumerate(self.arr)])
-        self.arr = new_arr
+        return matrix(new_arr)
+
+    def transpose(self):
+        self.arr = self.transposed()
 
     def to_clipboard(self):
         pyperclip.copy(self.tex_str())
