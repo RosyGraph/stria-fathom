@@ -115,6 +115,18 @@ class matrix(object):
     def to_clipboard(self):
         pyperclip.copy(self.tex_str())
 
+    def cat(self, other):
+        return matrix(
+            [self.arr[i] + other.arr[i] for i in range(len(self.arr))]
+        )
+
+    def is_full_rank_rref(self):
+        for i, row in enumerate(self.arr):
+            for j, col in enumerate(row):
+                if (j < i and col != 0) or (j == i and col != 1):
+                    return False
+        return True
+
     def __str__(self):
         res = ""
         for row in self.arr:
@@ -124,7 +136,21 @@ class matrix(object):
         return res
 
     def __mul__(self, other):
-        return matrix(numpy.matmul(self.arr, other.arr))
+        return matrix(numpy.matmul(self.arr, other.arr).tolist())
+
+
+def regress(coords):
+    A = matrix([[1, coords[x][0]] for x in range(len(coords))])
+    b = matrix([[coords[y][1]] for y in range(len(coords))])
+    AtA = A.transposed() * A
+    Atb = A.transposed() * b
+    xhat = AtA.cat(Atb)
+    xhat.reduce()
+    if xhat.is_full_rank_rref():
+        slope = xhat.arr[1][len(xhat.arr[0]) - 1]
+        intercept = xhat.arr[0][len(xhat.arr[0]) - 1]
+        return f"y = {slope}x + {intercept}"
+    return "something went wrong..." + str(xhat)
 
 
 def dot(l, r):
@@ -148,8 +174,4 @@ def from_clipboard():
 
 
 if __name__ == "__main__":
-    s = sys.argv[1].replace("\\n", "\n")
-    s = sys.argv[1].replace("\t", "")
-    A = from_bmatrix(s)
-
-    A.reduce(True)
+    print(regress([(1, 4), (2, 10), (3, 3)]))
