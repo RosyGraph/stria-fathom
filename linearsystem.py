@@ -139,7 +139,17 @@ class matrix(object):
         return matrix(numpy.matmul(self.arr, other.arr).tolist())
 
 
+def least_squares(A, b):
+    """find the least square solution of a linear equation"""
+    regular_eq = (A.transposed() * A).cat(A.transposed() * b)
+    regular_eq.reduce()
+    return regular_eq
+
+
 def regress(coords):
+    """
+    given a set of coordinates, find the linear equation which best fits them
+    """
     A = matrix([[1, coords[x][0]] for x in range(len(coords))])
     b = matrix([[coords[y][1]] for y in range(len(coords))])
     AtA = A.transposed() * A
@@ -154,11 +164,13 @@ def regress(coords):
 
 
 def dot(l, r):
+    """calculate the inner product of two vectors"""
     var = sum(l[i] * r[i] for i in range(len(l)))
     return var
 
 
 def from_bmatrix(s):
+    """create a matrix from LaTeX matrix string"""
     s = s.replace("\n", "")
     lines = s.split("\\")
     arr = []
@@ -169,9 +181,13 @@ def from_bmatrix(s):
 
 
 def from_clipboard():
+    """create a matrix from LaTeX matrix string in the system clipboard"""
     s = pyperclip.paste()
     return from_bmatrix(s)
 
 
 if __name__ == "__main__":
-    print(regress([(1, 4), (2, 10), (3, 3)]))
+    A = matrix([[-1, 2], [2, -3], [-1, 3]])
+    b = matrix([[4], [1], [2]])
+    print(least_squares(A, b))
+    print(A.cat(b))
